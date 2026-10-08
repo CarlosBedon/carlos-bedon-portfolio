@@ -1,37 +1,34 @@
-# Dashboard
+# Dashboard - Cookiecutter Django Cloud Ready
 
-Django template ready to deploy on Render with Supabase Postgres and Storage. It is based on Cookiecutter Django: `base` / `local` / `production` settings, Bootstrap 5 with Sass and Gulp, WhiteNoise, pytest, and uv.
+Django template ready to deploy on Render with Supabase Postgres and Storage. It is based on Cookiecutter Django: base / local / production settings, Bootstrap 5 with Sass and Gulp, WhiteNoise, pytest, and uv.
 
 The Python package still lives in the `carlosbedon_web` folder. That name does not appear in the interface.
 
+---
+
 ## What was set up
 
-1. **Portfolio app.** `PortfolioHomeView` serves `portfolio/home.html` at `/portfolio/`. The route is in `config/urls.py`, right after the users route.
+1. **Portfolio app**: `PortfolioHomeView` serves `portfolio/home.html` at `/portfolio/`. The route is in `config/urls.py`, right after the users route.
+2. **External Postgres**: In production, `DATABASE_URL` wins over `POSTGRES_*`. Supabase is reached through the IPv4 session pooler (`aws-0-<region>.pooler.supabase.com`, port `5432`, user `postgres.<project-ref>`, `sslmode=require`). The direct host `db.<project-ref>.supabase.co` is IPv6-only, and Render cannot reach it. If the password contains `$`, write it as `%24` inside `DATABASE_URL`. `POSTGRES_WAIT=false` skips the wait for Docker Postgres.
+3. **Static files in the image**: The production Dockerfile runs `collectstatic` while building the image, with dummy values that are not stored in the image. WhiteNoise needs `staticfiles.json` before Gunicorn starts. CSS comes from `npm run build` (`project.min.css`).
+4. **Migrations on boot**: `compose/production/django/start` runs `migrate`, then `collectstatic` again, then Gunicorn on `0.0.0.0:${PORT:-5000}`.
+5. **Secrets stay out of the repository**: `.env.example` has placeholders only. `.env`, `.env.production`, and `.envs/*` are in `.gitignore`. `.dockerignore` keeps `.env` and `.env.*` out of the image build.
+6. **Pre-commit**: When the local container starts, `compose/local/django/start` installs the hooks. The set covers file cleanup, `detect-private-key`, `pyupgrade`, `django-upgrade`, `isort`, `black`, `flake8`, and `djLint`. The GitHub Action `.github/workflows/pre-commit.yml` runs `pre-commit run --all-files`.
+7. **Supabase Storage**: `django-storages` and `boto3` are production dependencies in `pyproject.toml`. The image installs them with `uv sync --locked --no-dev`. Uploads use `S3Boto3Storage` and `AWS_S3_ENDPOINT_URL`. Addressing is path and the signature is `s3v4`. CSS and JS stay on WhiteNoise.
+8. **Template branding**: The navbar, the title, and the greeting say **Dashboard** and **Welcome**, in English.
 
-2. **External Postgres.** In production, `DATABASE_URL` wins over `POSTGRES_*`. Supabase is reached through the IPv4 session pooler (`aws-0-<region>.pooler.supabase.com`, port `5432`, user `postgres.<project-ref>`, `sslmode=require`). The direct host `db.<project-ref>.supabase.co` is IPv6-only, and Render cannot reach it. If the password contains `$`, write it as `%24` inside `DATABASE_URL`. `POSTGRES_WAIT=false` skips the wait for Docker Postgres.
-
-3. **Static files in the image.** The production Dockerfile runs `collectstatic` while building the image, with dummy values that are not stored in the image. WhiteNoise needs `staticfiles.json` before Gunicorn starts. CSS comes from `npm run build` (`project.min.css`).
-
-4. **Migrations on boot.** `compose/production/django/start` runs `migrate`, then `collectstatic` again, then Gunicorn on `0.0.0.0:${PORT:-5000}`.
-
-5. **Secrets stay out of the repository.** `.env.example` has placeholders only. `.env`, `.env.production`, and `.envs/*` are in `.gitignore`. `.dockerignore` keeps `.env` and `.env.*` out of the image build.
-
-6. **Pre-commit.** When the local container starts, `compose/local/django/start` installs the hooks. The set covers file cleanup, `detect-private-key`, `pyupgrade`, `django-upgrade`, `isort`, `black`, `flake8`, and djLint. The GitHub Action `.github/workflows/pre-commit.yml` runs `pre-commit run --all-files`.
-
-7. **Supabase Storage.** `django-storages` and `boto3` are production dependencies in `pyproject.toml`. The image installs them with `uv sync --locked --no-dev`. Uploads use `S3Boto3Storage` and `AWS_S3_ENDPOINT_URL`. Addressing is `path` and the signature is `s3v4`. CSS and JS stay on WhiteNoise.
-
-8. **Template branding.** The navbar, the title, and the greeting say Dashboard and Welcome, in English.
+---
 
 ## Production variables
 
 Copy the keys into the Render dashboard. Do not commit real values.
 
-```bash
+```env
 DJANGO_SETTINGS_MODULE=config.settings.production
 DJANGO_SECRET_KEY=change-me
 DJANGO_ADMIN_URL=admin/
 DJANGO_ALLOWED_HOSTS=.example.com,.onrender.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://example.com,https://*.onrender.com
+DJANGO_CSRF_TRUSTED_ORIGINS=[https://example.com](https://example.com),https://*.onrender.com
 
 DATABASE_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres?sslmode=require
 POSTGRES_HOST=aws-0-REGION.pooler.supabase.com
@@ -48,27 +45,3 @@ AWS_STORAGE_BUCKET_NAME=media
 AWS_S3_REGION_NAME=us-east-1
 AWS_S3_ENDPOINT_URL=https://PROJECT_REF.storage.supabase.co/storage/v1/s3
 ```
-
-Create the S3 keys in Supabase under Storage → S3 Access Keys. Do not use the anon key or the service_role key. The official endpoint uses the `storage` subdomain.
-
-Without the five `AWS_*` variables, the production process does not start, because `production.py` requires them when the settings are imported.
-
-## Local development
-
-```bash
-docker compose -f docker-compose.local.yml up --build
-```
-
-The app is at `http://127.0.0.1:8000/`. Mailpit is at `http://127.0.0.1:8025`.
-
-```bash
-docker compose -f docker-compose.local.yml exec django python manage.py createsuperuser
-docker compose -f docker-compose.local.yml exec django pytest
-```
-
-## Check
-
-- `/` shows this guide.
-- `/portfolio/` shows Welcome.
-- A new Render deploy needs a build without cache when the Dockerfile or the Sass changed.
-- Rotate any password that was pasted into a chat or a log before publishing the template.
