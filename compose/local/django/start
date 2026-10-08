@@ -4,6 +4,13 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# The project is bind-mounted over /app, so the hook must be installed at
+# startup. Git otherwise rejects the mount because the container user does
+# not own it. A second start finds the hook already present.
+export GIT_CONFIG_COUNT=1
+export GIT_CONFIG_KEY_0=safe.directory
+export GIT_CONFIG_VALUE_0=/app
+pre-commit install || true
 
 python manage.py migrate
 exec python manage.py runserver_plus 0.0.0.0:8000
