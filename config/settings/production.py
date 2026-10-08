@@ -1,4 +1,6 @@
 # ruff: noqa: E501
+from urllib.parse import urlparse
+
 from .base import *  # noqa: F403
 from .base import DATABASES
 from .base import INSTALLED_APPS
@@ -100,6 +102,27 @@ _use_supabase_storage = all(
         AWS_S3_REGION_NAME,
         AWS_S3_ENDPOINT_URL,
     )
+)
+
+
+def _supabase_public_domain(endpoint_url, bucket_name):
+    """Host path for a public object, without the scheme.
+
+    Presigned S3 URLs repeat themselves when the endpoint already contains
+    ``/storage/v1/s3``. The public object URL does not go through that signer.
+    """
+    host = urlparse(endpoint_url).hostname or ""
+    suffix = ".storage.supabase.co"
+    project_ref = host[: -len(suffix)] if host.endswith(suffix) else host.split(".")[0]
+    return f"{project_ref}.supabase.co/storage/v1/object/public/{bucket_name}"
+
+
+# Skip the presigned URL. S3Boto3Storage.url() then returns one public URL.
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_CUSTOM_DOMAIN = (
+    _supabase_public_domain(AWS_S3_ENDPOINT_URL, AWS_STORAGE_BUCKET_NAME)
+    if _use_supabase_storage
+    else None
 )
 STORAGES = {
     "default": {
