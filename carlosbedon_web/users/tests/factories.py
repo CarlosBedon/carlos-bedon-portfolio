@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from factory import Faker
 from factory import post_generation
 from factory.django import DjangoModelFactory
@@ -13,7 +11,9 @@ class UserFactory(DjangoModelFactory[User]):
     name = Faker("name")
 
     @post_generation
-    def password(self: User, create: bool, extracted: str | None, **kwargs):  # noqa: FBT001
+    def password(
+        self: User, create: bool, extracted: str | None, **kwargs
+    ):  # noqa: FBT001
         password = (
             extracted
             if extracted

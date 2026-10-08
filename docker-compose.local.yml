@@ -43,7 +43,7 @@ services:
     image: docker.io/axllent/mailpit:latest
     container_name: carlosbedon_web_local_mailpit
     ports:
-      - "8025:8025"
+      - '8025:8025'
 
   redis:
     image: docker.io/redis:7.2

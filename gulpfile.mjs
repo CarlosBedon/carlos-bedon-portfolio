@@ -4,7 +4,7 @@
 
 // Gulp and package
 import { src, dest, parallel, series, task, watch } from 'gulp';
-import pjson from './package.json' with {type: 'json'};
+import pjson from './package.json' with { type: 'json' };
 
 // Plugins
 import autoprefixer from 'autoprefixer';
@@ -66,7 +66,12 @@ function styles() {
     .pipe(
       sass({
         loadPaths: ['node_modules', paths.sass],
-        silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function'],
+        silenceDeprecations: [
+          'import',
+          'global-builtin',
+          'color-functions',
+          'if-function',
+        ],
       }),
     )
     .pipe(postcss(processCss))
@@ -98,7 +103,7 @@ function vendorScripts() {
 
 // Image compression
 async function imgCompression() {
-  const imagemin = (await import("gulp-imagemin")).default;
+  const imagemin = (await import('gulp-imagemin')).default;
   return src(`${paths.images}/*`, { encoding: false })
     .pipe(imagemin()) // Compresses PNG, JPEG, GIF and SVG images
     .pipe(dest(paths.images));

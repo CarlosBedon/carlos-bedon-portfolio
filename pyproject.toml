@@ -1,5 +1,5 @@
 [project]
-name = "carlosbedon_web"
+name = "carlosbedon-web"
 version = "0.1.0"
 description = "Backend and API for Carlos Bedon personal platform built with Django and Docker"
 readme = "README.md"
@@ -39,6 +39,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+  "black==26.10.0",
   "coverage==7.16.2",
   "django-coverage-plugin==3.2.2",
   "django-debug-toolbar==8.0.0",
@@ -48,13 +49,16 @@ dev = [
   "djangorestframework-stubs==3.18.1",
   "djlint==1.46.4",
   "factory-boy==3.3.3",
+  "flake8==7.4.1",
   "ipdb==0.13.13",
+  "isort==9.0.2",
   "mypy==2.4.0",
   "pre-commit==4.6.2",
   "psycopg[c]==3.3.6",
   "pytest==9.1.1",
   "pytest-django==4.14.0",
   "pytest-sugar==1.1.1",
+  "pyupgrade==3.21.2",
   "ruff==0.16.10",
   "sphinx==9.1.0",
   "sphinx-autobuild==2025.8.25",
@@ -62,18 +66,23 @@ dev = [
   "werkzeug[watchdog]==3.1.9",
 ]
 
+# ==== black ====
+[tool.black]
+target-version = [ "py314" ]
+line-length = 88
+
 # ==== djLint ====
 [tool.djlint]
-blank_line_after_tag = "load,extends"
-custom_blocks = "element,slot"
-close_void_tags = true
-format_css = true
-format_js = true
-ignore = "H006,H030,H031"
+profile = "django"
 include = "H017,H035"
 indent = 2
 max_line_length = 119
-profile = "django"
+blank_line_after_tag = "load,extends"
+close_void_tags = true
+format_css = true
+format_js = true
+custom_blocks = "element,slot"
+ignore = "H006,H030,H031"
 css.indent_size = 2
 js.indent_size = 2
 
@@ -84,7 +93,6 @@ extend-exclude = [
   "*/migrations/*.py",
   "staticfiles/*",
 ]
-
 lint.select = [
   "A",
   "ASYNC",
@@ -145,9 +153,37 @@ lint.ignore = [
 ]
 lint.isort.force-single-line = true
 
+# ==== isort ====
+[tool.isort]
+profile = "black"
+line_length = 88
+force_single_line = true
+known_first_party = [ "carlosbedon_web", "config" ]
+skip_glob = [ "*/migrations/*" ]
+
 # ==== pyproject-fmt ====
 [tool.pyproject-fmt]
 keep_full_version = true
+
+# ==== mypy ====
+[tool.mypy]
+ignore_missing_imports = true
+python_version = "3.14"
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+plugins = [
+  "mypy_django_plugin.main",
+  "mypy_drf_plugin.main",
+]
+warn_unused_configs = true
+overrides = [
+  # Django migrations should not produce any errors:
+  { module = "*.migrations.*", ignore_errors = true }
+]
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
 
 # ==== pytest ====
 [tool.pytest]
@@ -157,35 +193,14 @@ addopts = [
   "--import-mode=importlib",
 ]
 minversion = "9.0"
+norecursedirs = [ "node_modules" ]
 python_files = [
   "tests.py",
   "test_*.py",
 ]
-norecursedirs = [ "node_modules" ]
 
+[tool.coverage]
 # ==== Coverage ====
-[tool.coverage.run]
-include = [ "carlosbedon_web/**" ]
-omit = [ "*/migrations/*", "*/tests/*" ]
-plugins = [ "django_coverage_plugin" ]
-
-# ==== mypy ====
-[tool.mypy]
-python_version = "3.14"
-check_untyped_defs = true
-ignore_missing_imports = true
-warn_unused_ignores = true
-warn_redundant_casts = true
-warn_unused_configs = true
-plugins = [
-  "mypy_django_plugin.main",
-  "mypy_drf_plugin.main",
-]
-
-[[tool.mypy.overrides]]
-# Django migrations should not produce any errors:
-module = "*.migrations.*"
-ignore_errors = true
-
-[tool.django-stubs]
-django_settings_module = "config.settings.test"
+run.include = [ "carlosbedon_web/**" ]
+run.omit = [ "*/migrations/*", "*/tests/*" ]
+run.plugins = [ "django_coverage_plugin" ]
