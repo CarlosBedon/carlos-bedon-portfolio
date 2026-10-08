@@ -14,7 +14,7 @@ The Python package still lives in the `carlosbedon_web` folder. That name does n
 4. **Migrations on boot**: `compose/production/django/start` runs `migrate`, then `collectstatic` again, then Gunicorn on `0.0.0.0:${PORT:-5000}`.
 5. **Secrets stay out of the repository**: `.env.example` has placeholders only. `.env`, `.env.production`, and `.envs/*` are in `.gitignore`. `.dockerignore` keeps `.env` and `.env.*` out of the image build.
 6. **Pre-commit**: When the local container starts, `compose/local/django/start` installs the hooks. The set covers file cleanup, `detect-private-key`, `pyupgrade`, `django-upgrade`, `isort`, `black`, `flake8`, and `djLint`. The GitHub Action `.github/workflows/pre-commit.yml` runs `pre-commit run --all-files`.
-7. **Supabase Storage**: `django-storages` and `boto3` are production dependencies in `pyproject.toml`. The image installs them with `uv sync --locked --no-dev`. Uploads use `S3Boto3Storage` and `AWS_S3_ENDPOINT_URL`. Addressing is path and the signature is `s3v4`. CSS and JS stay on WhiteNoise.
+7. **Supabase Storage**: `django-storages` and `boto3` are production dependencies in `pyproject.toml`. The image installs them with `uv sync --locked --no-dev`. The five `AWS_*` variables default to empty, so the app starts without them and keeps media on local disk. When all five are set, uploads use `S3Boto3Storage` and `AWS_S3_ENDPOINT_URL`. Addressing is path and the signature is `s3v4`. CSS and JS stay on WhiteNoise.
 8. **Template branding**: The navbar, the title, and the greeting say **Dashboard** and **Welcome**, in English.
 
 ---
