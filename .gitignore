@@ -279,4 +279,5 @@ vendors.js
 *.min.js
 *.min.js.map
 .env
+.env.production
 .envs/*

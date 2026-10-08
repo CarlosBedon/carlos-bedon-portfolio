@@ -4,13 +4,29 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-if [ -z "${POSTGRES_USER}" ]; then
+if [ -z "${POSTGRES_USER:-}" ]; then
     base_postgres_image_default_user='postgres'
     export POSTGRES_USER="${base_postgres_image_default_user}"
 fi
 
-wait-for-it "${POSTGRES_HOST}:${POSTGRES_PORT}" -t 30
+# Docker Compose names its database service "postgres" and does not set
+# DATABASE_URL. Wait only in that case. An external server (Supabase on
+# Render) must not block startup on a local container at port 5432.
+# POSTGRES_WAIT=true forces the check; POSTGRES_WAIT=false skips it.
+postgres_host="${POSTGRES_HOST:-postgres}"
+postgres_port="${POSTGRES_PORT:-5432}"
+postgres_wait="${POSTGRES_WAIT:-}"
 
->&2 echo 'PostgreSQL is available'
+if [ "${postgres_wait}" = "true" ]; then
+    wait-for-it "${postgres_host}:${postgres_port}" -t 30
+    >&2 echo 'PostgreSQL is available'
+elif [ "${postgres_wait}" = "false" ]; then
+    >&2 echo 'Skipping PostgreSQL wait (POSTGRES_WAIT=false)'
+elif [ "${postgres_host}" = "postgres" ] && [ -z "${DATABASE_URL:-}" ]; then
+    wait-for-it "${postgres_host}:${postgres_port}" -t 30
+    >&2 echo 'PostgreSQL is available'
+else
+    >&2 echo "Skipping local PostgreSQL wait (host=${postgres_host})"
+fi
 
 exec "$@"

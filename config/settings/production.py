@@ -12,10 +12,23 @@ from .base import env
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["carlosbedon.com"])
+# https://docs.djangoproject.com/en/dev/ref/settings/#csrf-trusted-origins
+CSRF_TRUSTED_ORIGINS = env.list(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default=["https://carlosbedon.com"],
+)
 
 # DATABASES
 # ------------------------------------------------------------------------------
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
+# Supabase requires TLS. The Compose service hostname "postgres" does not.
+_db_host = DATABASES["default"].get("HOST") or ""
+_sslmode = env("POSTGRES_SSLMODE", default="")
+if not _sslmode and _db_host not in {"", "postgres", "localhost", "127.0.0.1"}:
+    _sslmode = "require"
+if _sslmode:
+    DATABASES["default"].setdefault("OPTIONS", {})
+    DATABASES["default"]["OPTIONS"].setdefault("sslmode", _sslmode)
 
 # CACHES
 # ------------------------------------------------------------------------------
