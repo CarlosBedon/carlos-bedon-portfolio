@@ -1,1 +1,47 @@
 {% extends "base.html" %}
+
+{% block title %}
+  Dashboard
+{% endblock title %}
+{% block content %}
+  <div class="py-5">
+    <h1 class="display-5 fw-bold mb-3">Dashboard</h1>
+    <p class="lead text-muted">
+      Django template for Render, with Supabase Postgres and Storage. The same steps are in the repository README.
+    </p>
+    <ol class="list-group list-group-numbered">
+      <li class="list-group-item">
+        <strong>Portfolio app.</strong>
+        <code>PortfolioHomeView</code> renders <code>/portfolio/</code>.
+      </li>
+      <li class="list-group-item">
+        <strong>External Postgres.</strong>
+        <code>DATABASE_URL</code> wins over <code>POSTGRES_*</code>. Use the Supabase session pooler on IPv4, user <code>postgres.&lt;project-ref&gt;</code>, and <code>sslmode=require</code>. Encode a <code>$</code> in the URL password as <code>%24</code>. Set <code>POSTGRES_WAIT=false</code>.
+      </li>
+      <li class="list-group-item">
+        <strong>Static files in the image.</strong>
+        The production image runs <code>collectstatic</code> at build time so WhiteNoise has <code>staticfiles.json</code>. Gulp compiles <code>project.min.css</code>.
+      </li>
+      <li class="list-group-item">
+        <strong>Migrations on boot.</strong>
+        The production start script migrates, collects static files again, then starts Gunicorn on <code>PORT</code>.
+      </li>
+      <li class="list-group-item">
+        <strong>Secrets stay out of git.</strong>
+        <code>.env.example</code> has placeholders only. Real env files are gitignored and excluded from the Docker build.
+      </li>
+      <li class="list-group-item">
+        <strong>Pre-commit.</strong>
+        The local container installs the hooks on startup. They cover cleanup, private keys, pyupgrade, django-upgrade, isort, black, flake8, and djLint. GitHub Actions runs them with <code>--all-files</code>.
+      </li>
+      <li class="list-group-item">
+        <strong>Supabase Storage.</strong>
+        Uploads use <code>S3Boto3Storage</code> and <code>AWS_S3_ENDPOINT_URL</code>, with path-style addressing. CSS and JS stay on WhiteNoise.
+      </li>
+      <li class="list-group-item">
+        <strong>Template branding.</strong>
+        The visible name is Dashboard. The portfolio page says Welcome.
+      </li>
+    </ol>
+  </div>
+{% endblock content %}

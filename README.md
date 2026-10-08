@@ -1,99 +1,74 @@
-# carlosbedon_web
+# Dashboard
 
-Backend and API for Carlos Bedon personal platform built with Django and Docker
+Django template ready to deploy on Render with Supabase Postgres and Storage. It is based on Cookiecutter Django: `base` / `local` / `production` settings, Bootstrap 5 with Sass and Gulp, WhiteNoise, pytest, and uv.
 
-[![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+The Python package still lives in the `carlosbedon_web` folder. That name does not appear in the interface.
 
-License: MIT
+## What was set up
 
-## Settings
+1. **Portfolio app.** `PortfolioHomeView` serves `portfolio/home.html` at `/portfolio/`. The route is in `config/urls.py`, right after the users route.
 
-Moved to [settings](https://cookiecutter-django.readthedocs.io/en/latest/1-getting-started/settings.html).
+2. **External Postgres.** In production, `DATABASE_URL` wins over `POSTGRES_*`. Supabase is reached through the IPv4 session pooler (`aws-0-<region>.pooler.supabase.com`, port `5432`, user `postgres.<project-ref>`, `sslmode=require`). The direct host `db.<project-ref>.supabase.co` is IPv6-only, and Render cannot reach it. If the password contains `$`, write it as `%24` inside `DATABASE_URL`. `POSTGRES_WAIT=false` skips the wait for Docker Postgres.
 
-## Basic Commands
+3. **Static files in the image.** The production Dockerfile runs `collectstatic` while building the image, with dummy values that are not stored in the image. WhiteNoise needs `staticfiles.json` before Gunicorn starts. CSS comes from `npm run build` (`project.min.css`).
 
-### Setting Up Your Users
+4. **Migrations on boot.** `compose/production/django/start` runs `migrate`, then `collectstatic` again, then Gunicorn on `0.0.0.0:${PORT:-5000}`.
 
-- To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
+5. **Secrets stay out of the repository.** `.env.example` has placeholders only. `.env`, `.env.production`, and `.envs/*` are in `.gitignore`. `.dockerignore` keeps `.env` and `.env.*` out of the image build.
 
-- To create a **superuser account**, use this command:
+6. **Pre-commit.** When the local container starts, `compose/local/django/start` installs the hooks. The set covers file cleanup, `detect-private-key`, `pyupgrade`, `django-upgrade`, `isort`, `black`, `flake8`, and djLint. The GitHub Action `.github/workflows/pre-commit.yml` runs `pre-commit run --all-files`.
 
-      uv run python manage.py createsuperuser
+7. **Supabase Storage.** `django-storages` and `boto3` are production dependencies in `pyproject.toml`. The image installs them with `uv sync --locked --no-dev`. Uploads use `S3Boto3Storage` and `AWS_S3_ENDPOINT_URL`. Addressing is `path` and the signature is `s3v4`. CSS and JS stay on WhiteNoise.
 
-For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
+8. **Template branding.** The navbar, the title, and the greeting say Dashboard and Welcome, in English.
 
-### Type checks
+## Production variables
 
-Running type checks with mypy:
-
-    uv run mypy carlosbedon_web
-
-### Test coverage
-
-To run the tests, check your test coverage, and generate an HTML coverage report:
-
-    uv run coverage run -m pytest
-    uv run coverage html
-    uv run open htmlcov/index.html
-
-#### Running tests with pytest
-
-    uv run pytest
-
-### Live reloading and Sass CSS compilation
-
-Moved to [Live reloading and SASS compilation](https://cookiecutter-django.readthedocs.io/en/latest/2-local-development/developing-locally.html#using-webpack-or-gulp).
-
-### Celery
-
-This app comes with Celery.
-
-To run a celery worker:
+Copy the keys into the Render dashboard. Do not commit real values.
 
 ```bash
-cd carlosbedon_web
-uv run celery -A config.celery_app worker -l info
+DJANGO_SETTINGS_MODULE=config.settings.production
+DJANGO_SECRET_KEY=change-me
+DJANGO_ADMIN_URL=admin/
+DJANGO_ALLOWED_HOSTS=.example.com,.onrender.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://example.com,https://*.onrender.com
+
+DATABASE_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres?sslmode=require
+POSTGRES_HOST=aws-0-REGION.pooler.supabase.com
+POSTGRES_PORT=5432
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres.PROJECT_REF
+POSTGRES_PASSWORD=change-me
+POSTGRES_SSLMODE=require
+POSTGRES_WAIT=false
+
+AWS_ACCESS_KEY_ID=change-me
+AWS_SECRET_ACCESS_KEY=change-me
+AWS_STORAGE_BUCKET_NAME=media
+AWS_S3_REGION_NAME=us-east-1
+AWS_S3_ENDPOINT_URL=https://PROJECT_REF.storage.supabase.co/storage/v1/s3
 ```
 
-Please note: For Celery's import magic to work, it is important _where_ the celery commands are run. If you are in the same folder with _manage.py_, you should be right.
+Create the S3 keys in Supabase under Storage → S3 Access Keys. Do not use the anon key or the service_role key. The official endpoint uses the `storage` subdomain.
 
-To run [periodic tasks](https://docs.celeryq.dev/en/stable/userguide/periodic-tasks.html), you'll need to start the celery beat scheduler service. You can start it as a standalone process:
+Without the five `AWS_*` variables, the production process does not start, because `production.py` requires them when the settings are imported.
+
+## Local development
 
 ```bash
-cd carlosbedon_web
-uv run celery -A config.celery_app beat
+docker compose -f docker-compose.local.yml up --build
 ```
 
-or you can embed the beat service inside a worker with the `-B` option (not recommended for production use):
+The app is at `http://127.0.0.1:8000/`. Mailpit is at `http://127.0.0.1:8025`.
 
 ```bash
-cd carlosbedon_web
-uv run celery -A config.celery_app worker -B -l info
+docker compose -f docker-compose.local.yml exec django python manage.py createsuperuser
+docker compose -f docker-compose.local.yml exec django pytest
 ```
 
-### Email Server
+## Check
 
-In development, it is often nice to be able to see emails that are being sent from your application. For that reason local SMTP server [Mailpit](https://github.com/axllent/mailpit) with a web interface is available as docker container.
-
-Container mailpit will start automatically when you will run all docker containers.
-Please check [cookiecutter-django Docker documentation](https://cookiecutter-django.readthedocs.io/en/latest/2-local-development/developing-locally-docker.html) for more details how to start all containers.
-
-With Mailpit running, to view messages that are sent by your application, open your browser and go to `http://127.0.0.1:8025`
-
-## Deployment
-
-The following details how to deploy this application.
-
-### Docker
-
-See detailed [cookiecutter-django Docker documentation](https://cookiecutter-django.readthedocs.io/en/latest/3-deployment/deployment-with-docker.html).
-
-### Custom Bootstrap Compilation
-
-The generated CSS is set up with automatic Bootstrap recompilation with variables of your choice.
-Bootstrap v5 is installed using npm and customised by tweaking your variables in `static/sass/custom_bootstrap_vars`.
-
-You can find a list of available variables [in the bootstrap source](https://github.com/twbs/bootstrap/blob/v5.1.3/scss/_variables.scss), or get explanations on them in the [Bootstrap docs](https://getbootstrap.com/docs/5.1/customize/sass/).
-
-Bootstrap's javascript as well as its dependencies are concatenated into a single file: `static/js/vendors.js`.
+- `/` shows this guide.
+- `/portfolio/` shows Welcome.
+- A new Render deploy needs a build without cache when the Dockerfile or the Sass changed.
+- Rotate any password that was pasted into a chat or a log before publishing the template.
