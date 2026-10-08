@@ -1,7 +1,7 @@
 services:
   docs:
-    image: carlosbedon_web_local_docs
-    container_name: carlosbedon_web_local_docs
+    image: project_name_local_docs
+    container_name: project_name_local_docs
     build:
       context: .
       dockerfile: ./compose/local/docs/Dockerfile
@@ -12,7 +12,7 @@ services:
       - /app/.venv
       - ./docs:/docs:z
       - ./config:/app/config:z
-      - ./carlosbedon_web:/app/carlosbedon_web:z
+      - ./project_name:/app/project_name:z
     ports:
       - '9000:9000'
     command: /start-docs

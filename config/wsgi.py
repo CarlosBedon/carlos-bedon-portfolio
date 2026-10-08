@@ -1,5 +1,5 @@
 """
-WSGI config for carlosbedon_web project.
+WSGI config for project_name project.
 
 This module contains the WSGI application used by Django's development server
 and any production WSGI deployments. It should expose a module-level variable
@@ -21,9 +21,9 @@ from pathlib import Path
 from django.core.wsgi import get_wsgi_application
 
 # This allows easy placement of apps within the interior
-# carlosbedon_web directory.
+# project_name directory.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
-sys.path.append(str(BASE_DIR / "carlosbedon_web"))
+sys.path.append(str(BASE_DIR / "project_name"))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.production")
 
 # This application object is used by any WSGI server configured to use this

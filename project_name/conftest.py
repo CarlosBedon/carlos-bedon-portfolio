@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from carlosbedon_web.users.tests.factories import UserFactory
+from project_name.users.tests.factories import UserFactory
 
 if TYPE_CHECKING:
-    from carlosbedon_web.users.models import User
+    from project_name.users.models import User
 
 
 @pytest.fixture(autouse=True)

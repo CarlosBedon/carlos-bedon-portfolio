@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from carlosbedon_web.users.models import User
+    from project_name.users.models import User
 
 
 def test_user_get_absolute_url(user: User):

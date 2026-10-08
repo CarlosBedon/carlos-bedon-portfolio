@@ -1,7 +1,7 @@
 [project]
-name = "carlosbedon-web"
+name = "project-name"
 version = "0.1.0"
-description = "Backend and API for Carlos Bedon personal platform built with Django and Docker"
+description = "Django template ready to deploy on Render with Supabase Postgres and Storage"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
@@ -160,7 +160,7 @@ lint.isort.force-single-line = true
 profile = "black"
 line_length = 88
 force_single_line = true
-known_first_party = [ "carlosbedon_web", "config" ]
+known_first_party = [ "config", "project_name" ]
 skip_glob = [ "*/migrations/*" ]
 
 # ==== pyproject-fmt ====
@@ -203,6 +203,6 @@ python_files = [
 
 [tool.coverage]
 # ==== Coverage ====
-run.include = [ "carlosbedon_web/**" ]
+run.include = [ "project_name/**" ]
 run.omit = [ "*/migrations/*", "*/tests/*" ]
 run.plugins = [ "django_coverage_plugin" ]

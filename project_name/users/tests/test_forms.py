@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext_lazy as _
 
-from carlosbedon_web.users.forms import UserAdminCreationForm
+from project_name.users.forms import UserAdminCreationForm
 
 if TYPE_CHECKING:
-    from carlosbedon_web.users.models import User
+    from project_name.users.models import User
 
 
 class TestUserAdminCreationForm:

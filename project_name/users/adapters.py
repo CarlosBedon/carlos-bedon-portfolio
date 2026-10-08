@@ -8,7 +8,7 @@ if typing.TYPE_CHECKING:
     from allauth.socialaccount.models import SocialLogin
     from django.http import HttpRequest
 
-    from carlosbedon_web.users.models import User
+    from project_name.users.models import User
 
 
 class AccountAdapter(DefaultAccountAdapter):

@@ -1,6 +1,6 @@
 // For format details, see https://containers.dev/implementors/json_reference/
 {
-    "name": "carlosbedon_web_dev",
+    "name": "project_name_dev",
     "dockerComposeFile": [
         "../docker-compose.local.yml"
     ],

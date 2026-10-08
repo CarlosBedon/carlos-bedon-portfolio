@@ -2,7 +2,7 @@
 
 Django template ready to deploy on Render with Supabase Postgres and Storage. It is based on Cookiecutter Django: base / local / production settings, Bootstrap 5 with Sass and Gulp, WhiteNoise, pytest, and uv.
 
-The Python package still lives in the `carlosbedon_web` folder. That name does not appear in the interface.
+The Python package lives in the `dashboard` folder, the same name shown in the interface.
 
 ---
 

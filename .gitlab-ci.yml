@@ -3,10 +3,10 @@ stages:
   - test
 
 variables:
-  POSTGRES_USER: 'carlosbedon_web'
+  POSTGRES_USER: 'project_name'
   POSTGRES_PASSWORD: ''
   POSTGRES_HOST: postgres
-  POSTGRES_DB: 'test_carlosbedon_web'
+  POSTGRES_DB: 'test_project_name'
   POSTGRES_HOST_AUTH_METHOD: trust
   REDIS_URL: 'redis://redis:6379/0'
 

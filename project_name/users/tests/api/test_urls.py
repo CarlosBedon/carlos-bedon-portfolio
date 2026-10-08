@@ -4,7 +4,7 @@ from django.urls import resolve
 from django.urls import reverse
 
 if TYPE_CHECKING:
-    from carlosbedon_web.users.models import User
+    from project_name.users.models import User
 
 
 def test_user_detail(user: User):

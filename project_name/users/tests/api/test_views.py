@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 import pytest
 from rest_framework.test import APIRequestFactory
 
-from carlosbedon_web.users.api.views import UserViewSet
+from project_name.users.api.views import UserViewSet
 
 if TYPE_CHECKING:
-    from carlosbedon_web.users.models import User
+    from project_name.users.models import User
 
 
 class TestUserViewSet:

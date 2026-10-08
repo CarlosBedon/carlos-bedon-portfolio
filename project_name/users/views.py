@@ -8,7 +8,7 @@ from django.views.generic import DetailView
 from django.views.generic import RedirectView
 from django.views.generic import UpdateView
 
-from carlosbedon_web.users.models import User
+from project_name.users.models import User
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet

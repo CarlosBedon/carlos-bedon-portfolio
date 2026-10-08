@@ -1,4 +1,4 @@
-# Translations for the carlosbedon_web project
+# Translations for the project_name project
 # Copyright (C) 2026 Carlos Bedon Cardena
 # Carlos Bedon Cardena <carlosbedon@outlook.com>, 2026.
 #

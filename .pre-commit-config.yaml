@@ -54,7 +54,7 @@ repos:
     hooks:
       - id: prettier
         args: ['--tab-width', '2', '--single-quote']
-        exclude: 'carlosbedon_web/templates/'
+        exclude: 'project_name/templates/'
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.30.1

@@ -20,9 +20,9 @@ def main():
         ) from exc
 
     # This allows easy placement of apps within the interior
-    # carlosbedon_web directory.
+    # project_name directory.
     current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "carlosbedon_web"))
+    sys.path.append(str(current_path / "project_name"))
 
     execute_from_command_line(sys.argv)
 

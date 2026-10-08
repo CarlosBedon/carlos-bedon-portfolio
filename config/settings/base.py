@@ -8,8 +8,8 @@ from pathlib import Path
 import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# carlosbedon_web/
-APPS_DIR = BASE_DIR / "carlosbedon_web"
+# project_name/
+APPS_DIR = BASE_DIR / "project_name"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -99,9 +99,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "carlosbedon_web.users",
+    "project_name.users",
     # Your stuff: custom apps go here
-    "carlosbedon_web.apps.portfolio",
+    "project_name.apps.portfolio",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -109,7 +109,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "carlosbedon_web.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "project_name.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "carlosbedon_web.users.context_processors.allauth_settings",
+                "project_name.users.context_processors.allauth_settings",
             ],
         },
     },
@@ -330,13 +330,13 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_ADAPTER = "carlosbedon_web.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "project_name.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html
-ACCOUNT_FORMS = {"signup": "carlosbedon_web.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "project_name.users.forms.UserSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_ADAPTER = "carlosbedon_web.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "project_name.users.adapters.SocialAccountAdapter"
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_FORMS = {"signup": "carlosbedon_web.users.forms.UserSocialSignupForm"}
+SOCIALACCOUNT_FORMS = {"signup": "project_name.users.forms.UserSocialSignupForm"}
 
 # django-rest-framework
 # -------------------------------------------------------------------------------
@@ -356,8 +356,8 @@ CORS_URLS_REGEX = r"^/api/.*$"
 # By Default swagger ui is available only to admin user(s). You can change permission classes to change that
 # See more configuration options at https://drf-spectacular.readthedocs.io/en/latest/settings.html#settings
 SPECTACULAR_SETTINGS = {
-    "TITLE": "carlosbedon_web API",
-    "DESCRIPTION": "Documentation of API endpoints of carlosbedon_web",
+    "TITLE": "project_name API",
+    "DESCRIPTION": "Documentation of API endpoints of project_name",
     "VERSION": "1.0.0",
     "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
     "SCHEMA_PATH_PREFIX": "/api/",
