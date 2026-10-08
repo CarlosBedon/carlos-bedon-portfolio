@@ -99,4 +99,13 @@ RUN DATABASE_URL="postgres://dummy" \
   DJANGO_SETTINGS_MODULE="config.settings.test" \
   python manage.py compilemessages
 
+# CompressedManifestStaticFilesStorage reads staticfiles.json at runtime.
+# Build it into the image so the manifest exists before Render starts the
+# process. These values exist only for this layer; they are not image ENV.
+RUN DATABASE_URL="postgres://dummy" \
+  DJANGO_SETTINGS_MODULE="config.settings.production" \
+  DJANGO_SECRET_KEY="build-time-collectstatic-not-a-runtime-secret" \
+  DJANGO_ADMIN_URL="admin/" \
+  python manage.py collectstatic --noinput
+
 ENTRYPOINT ["/entrypoint"]
