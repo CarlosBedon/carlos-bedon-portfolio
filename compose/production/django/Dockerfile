@@ -5,7 +5,10 @@ WORKDIR ${APP_HOME}
 COPY ./package.json ./package-lock.json ${APP_HOME}
 RUN npm ci && npm cache clean --force
 COPY . ${APP_HOME}
-RUN npm run build
+RUN npm run build \
+  && test -s carlosbedon_web/static/css/project.min.css \
+  && test -f carlosbedon_web/static/js/project.min.js \
+  && test -s carlosbedon_web/static/js/vendors.min.js
 # define an alias for the specific python version used in this file.
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS python-build-stage
 

@@ -10,7 +10,6 @@ import pjson from './package.json' with {type: 'json'};
 import autoprefixer from 'autoprefixer';
 import browserSyncLib from 'browser-sync';
 import concat from 'gulp-concat';
-import tildeImporter from 'node-sass-tilde-importer';
 import cssnano from 'cssnano';
 import pixrem from 'pixrem';
 import plumber from 'gulp-plumber';
@@ -66,11 +65,10 @@ function styles() {
   return src(`${paths.sass}/project.scss`)
     .pipe(
       sass({
-        importer: tildeImporter,
-        includePaths: [paths.sass],
-      }).on('error', sass.logError),
+        loadPaths: ['node_modules', paths.sass],
+        silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function'],
+      }),
     )
-    .pipe(plumber()) // Checks for errors
     .pipe(postcss(processCss))
     .pipe(dest(paths.css))
     .pipe(rename({ suffix: '.min' }))
