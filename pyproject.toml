@@ -14,6 +14,7 @@ classifiers = [
 ]
 dependencies = [
   "argon2-cffi==25.1.0",
+  "boto3==1.43.110",
   "celery==5.6.3",
   "crispy-bootstrap5==2026.9",
   "django==6.0.8",
@@ -25,6 +26,7 @@ dependencies = [
   "django-environ==0.14.0",
   "django-model-utils==5.0.0",
   "django-redis==7.0.0",
+  "django-storages==1.14.6",
   "djangorestframework==3.18.1",
   "drf-spectacular==0.30.0",
   "flower==2.2.0",

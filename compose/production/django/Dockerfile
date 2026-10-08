@@ -109,6 +109,11 @@ RUN DATABASE_URL="postgres://dummy" \
   DJANGO_SETTINGS_MODULE="config.settings.production" \
   DJANGO_SECRET_KEY="build-time-collectstatic-not-a-runtime-secret" \
   DJANGO_ADMIN_URL="admin/" \
+  AWS_ACCESS_KEY_ID="build" \
+  AWS_SECRET_ACCESS_KEY="build" \
+  AWS_STORAGE_BUCKET_NAME="build" \
+  AWS_S3_REGION_NAME="us-east-1" \
+  AWS_S3_ENDPOINT_URL="https://example.storage.supabase.co/storage/v1/s3" \
   python manage.py collectstatic --noinput
 
 ENTRYPOINT ["/entrypoint"]

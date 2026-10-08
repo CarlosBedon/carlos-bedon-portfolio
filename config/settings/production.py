@@ -77,10 +77,23 @@ SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
 )
 
 # STATIC & MEDIA
-# ------------------------
+# ------------------------------------------------------------------------------
+# Uploads use Supabase Storage through its S3 endpoint. CSS and JS stay on
+# WhiteNoise, so collectstatic does not talk to the bucket.
+# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+# https://supabase.com/docs/guides/storage/s3/authentication
+INSTALLED_APPS += ["storages"]
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME")
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
+# Supabase rejects virtual-hosted bucket URLs. The bucket stays in the path.
+AWS_S3_ADDRESSING_STYLE = "path"
+AWS_S3_SIGNATURE_VERSION = "s3v4"
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
