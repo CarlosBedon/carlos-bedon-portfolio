@@ -32,12 +32,13 @@ def get_store_for_member(user, store_id: int) -> Store:
 def user_can_manage_store(user, store: Store) -> bool:
     """Return whether this member can manage this store.
 
-    The store must be publishable, and the user needs an active
-    administrator membership. A superuser without that membership cannot
-    manage it through this function. Platform staff continue to use
-    Django Admin. Calling this function does not filter other queries.
+    The store must be active and not soft-deleted, and the user needs an
+    active administrator membership. A superuser without that membership
+    cannot manage it through this function. Views and APIs must call this
+    function themselves. ``Store.is_publishable`` is a separate predicate
+    and does not apply this check.
     """
-    if not store.is_publishable:
+    if store.deleted_at is not None or store.status != Store.Status.ACTIVE:
         return False
     if not getattr(user, "is_authenticated", False):
         return False

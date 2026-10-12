@@ -2,6 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db import transaction
+from django.db.models import QuerySet
 
 from project_name.tenants.models import PRIMARY_DOMAIN_CONSTRAINT
 from project_name.tenants.models import UNIQUE_MEMBERSHIP_CONSTRAINT
@@ -130,19 +131,113 @@ def test_soft_delete_keeps_domains_and_memberships():
     assert StoreMembership.objects.filter(pk=membership.pk).exists()
 
 
+def test_unsaved_store_delete_raises():
+    with pytest.raises(ValueError, match="attribute is set to None"):
+        Store(name="Alpha", slug="alpha").delete()
+
+
 def test_instance_delete_is_logical():
     store = StoreFactory()
     domain = StoreDomainFactory(store=store, domain="instance.example.com")
-    store.delete()
-    store.refresh_from_db()
+    membership = StoreMembershipFactory(store=store)
+    deleted = store.delete()
+    assert deleted == (1, {"tenants.Store": 1})
     assert store.deleted_at is not None
     assert StoreDomain.objects.filter(pk=domain.pk).exists()
+    assert StoreMembership.objects.filter(pk=membership.pk).exists()
+    assert store.delete() == (0, {})
 
 
 def test_queryset_delete_is_logical():
     store = StoreFactory()
     domain = StoreDomainFactory(store=store, domain="queryset.example.com")
-    Store.objects.filter(pk=store.pk).delete()
+    deleted = Store.objects.filter(pk=store.pk).delete()
+    assert deleted == (1, {"tenants.Store": 1})
     store.refresh_from_db()
     assert store.deleted_at is not None
     assert StoreDomain.objects.filter(pk=domain.pk).exists()
+    assert Store.objects.filter(slug="missing").delete() == (0, {})
+
+
+def test_queryset_delete_across_a_relation_keeps_domains():
+    store = StoreFactory()
+    domain = StoreDomainFactory(store=store, domain="joined.example.com")
+    Store.objects.filter(domains__domain="joined.example.com").delete()
+    store.refresh_from_db()
+    assert store.deleted_at is not None
+    assert StoreDomain.objects.filter(pk=domain.pk).exists()
+
+
+def test_queryset_delete_rejects_slices_distinct_fields_and_values():
+    with pytest.raises(TypeError):
+        Store.objects.all()[:1].delete()
+    with pytest.raises(TypeError):
+        Store.objects.distinct("slug").delete()
+    with pytest.raises(TypeError):
+        Store.objects.values("id").delete()
+
+
+def test_plain_distinct_delete_soft_deletes_the_store():
+    store = StoreFactory()
+    first = StoreDomainFactory(store=store, domain="distinct-one.example.com")
+    second = StoreDomainFactory(store=store, domain="distinct-two.example.com")
+    deleted = (
+        Store.objects.filter(pk=store.pk, domains__isnull=False).distinct().delete()
+    )
+    assert deleted == (1, {"tenants.Store": 1})
+    store.refresh_from_db()
+    assert store.deleted_at is not None
+    assert StoreDomain.objects.filter(pk=first.pk).exists()
+    assert StoreDomain.objects.filter(pk=second.pk).exists()
+
+
+def test_primary_domain_transaction_uses_the_write_alias(monkeypatch):
+    store = StoreFactory()
+    first = StoreDomainFactory(
+        store=store,
+        domain="alias-old.example.com",
+        is_primary=True,
+    )
+    captured = {}
+    original_atomic = transaction.atomic
+
+    def record_atomic(*args, **kwargs):
+        captured["using"] = kwargs.get("using")
+        return original_atomic(*args, **kwargs)
+
+    monkeypatch.setattr(
+        "project_name.tenants.models.transaction.atomic",
+        record_atomic,
+    )
+    second = StoreDomain(
+        store=store,
+        domain="alias-new.example.com",
+        is_primary=True,
+    )
+    second.save()
+    assert captured["using"] == "default"
+    first.refresh_from_db()
+    assert first.is_primary is False
+    assert second.is_primary is True
+
+
+def test_collector_delete_removes_domains_and_memberships():
+    store = StoreFactory()
+    domain = StoreDomainFactory(store=store, domain="physical.example.com")
+    membership = StoreMembershipFactory(store=store)
+    QuerySet.delete(Store.objects.filter(pk=store.pk))
+    assert not Store.objects.filter(pk=store.pk).exists()
+    assert not StoreDomain.objects.filter(pk=domain.pk).exists()
+    assert not StoreMembership.objects.filter(pk=membership.pk).exists()
+
+
+def test_full_clean_rejects_a_second_primary_domain():
+    store = StoreFactory()
+    StoreDomainFactory(store=store, domain="first.example.com", is_primary=True)
+    second = StoreDomain(
+        store=store,
+        domain="second.example.com",
+        is_primary=True,
+    )
+    with pytest.raises(ValidationError):
+        second.full_clean()

@@ -70,11 +70,13 @@ def test_deleted_store_cannot_be_managed_or_published():
         role=StoreMembership.Role.ADMIN,
     )
     store.soft_delete()
+    loaded = Store.objects.get(pk=store.pk)
+    assert loaded.deleted_at is not None
     assert set(stores_for_member(user)) == set()
-    assert user_can_manage_store(user, store) is False
-    assert store.is_publishable is False
+    assert user_can_manage_store(user, loaded) is False
+    assert loaded.is_publishable is False
     with pytest.raises(Store.DoesNotExist):
-        get_store_for_member(user, store.pk)
+        get_store_for_member(user, loaded.pk)
 
 
 def test_member_of_one_store_cannot_open_another_store_by_id():
