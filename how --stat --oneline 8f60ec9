@@ -1,0 +1,12 @@
+* [33m8f60ec9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32msecondd[m[33m)[m refactor: clean initial code to start db logic
+* [33mf3d5c00[m[33m ([m[1;31morigin/secondd[m[33m)[m feat: add photo to test
+* [33mc2eb788[m feat: add photo to test
+* [33m9f95e48[m[33m ([m[1;31morigin/second[m[33m, [m[1;31morigin/first_pr[m[33m, [m[1;32msecond[m[33m, [m[1;32mfirst_pr[m[33m)[m feat: add photo to test
+* [33mcf4a2a4[m feat: add photo to test
+* [33m6af7875[m feat: add photo to test
+* [33m72eafb5[m feat: add photo to test
+* [33m7a34a41[m[33m ([m[1;31morigin/portfolio_starts[m[33m, [m[1;32mmain[m[33m)[m check for tests
+* [33ma8a4006[m[33m ([m[1;32mportfolio_starts[m[33m)[m refactor:rename the Python package to project_name
+* [33m2ce5388[m fix: start production when Supabase Storage keys are unset
+* [33mb169c0e[m feat: write a README file
+* [33mfeb8731[m feat: write a README file

@@ -1,0 +1,50 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 7c3604f..d60caaa 100755[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -10,11 +10,11 @@[m [mThere is no `config.settings.staging` module. A staging host uses `config.settin[m
+ [m
+ ## Settings[m
+ [m
+[31m-| Module | When it is used |[m
+[31m-| --- | --- |[m
+[31m-| `config.settings.local` | `manage.py` when `DJANGO_SETTINGS_MODULE` is unset. Docker Compose local. |[m
+[31m-| `config.settings.test` | `pytest` (`--ds=config.settings.test` in `pyproject.toml`). |[m
+[31m-| `config.settings.production` | `config/wsgi.py` by default. The production image and a Render service. |[m
+[32m+[m[32m| Module                       | When it is used                                                           |[m
+[32m+[m[32m| ---------------------------- | ------------------------------------------------------------------------- |[m
+[32m+[m[32m| `config.settings.local`      | `manage.py` when `DJANGO_SETTINGS_MODULE` is unset. Docker Compose local. |[m
+[32m+[m[32m| `config.settings.test`       | `pytest` (`--ds=config.settings.test` in `pyproject.toml`).               |[m
+[32m+[m[32m| `config.settings.production` | `config/wsgi.py` by default. The production image and a Render service.   |[m
+ [m
+ `config/settings/base.py` is shared. Production replaces the admin path, cache, HTTPS cookies, and media storage.[m
+ [m
+[36m@@ -78,17 +78,17 @@[m [mProduction refuses to start without `DJANGO_SECRET_KEY` and `DJANGO_ADMIN_URL`.[m
+ [m
+ These have defaults, but a public host should set them:[m
+ [m
+[31m-| Variable | Default in production |[m
+[31m-| --- | --- |[m
+[31m-| `DJANGO_ALLOWED_HOSTS` | `example.com` |[m
+[31m-| `DJANGO_CSRF_TRUSTED_ORIGINS` | `https://example.com` |[m
+[31m-| `DJANGO_SECURE_SSL_REDIRECT` | `true` |[m
+[31m-| `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS` | `true` |[m
+[31m-| `DJANGO_SECURE_HSTS_PRELOAD` | `true` |[m
+[31m-| `DJANGO_SECURE_CONTENT_TYPE_NOSNIFF` | `true` |[m
+[31m-| `REDIS_URL` | `redis://redis:6379/0` |[m
+[31m-| `DJANGO_EMAIL_BACKEND` | SMTP |[m
+[31m-| `DJANGO_ACCOUNT_ALLOW_REGISTRATION` | `true` |[m
+[32m+[m[32m| Variable                                | Default in production  |[m
+[32m+[m[32m| --------------------------------------- | ---------------------- |[m
+[32m+[m[32m| `DJANGO_ALLOWED_HOSTS`                  | `example.com`          |[m
+[32m+[m[32m| `DJANGO_CSRF_TRUSTED_ORIGINS`           | `https://example.com`  |[m
+[32m+[m[32m| `DJANGO_SECURE_SSL_REDIRECT`            | `true`                 |[m
+[32m+[m[32m| `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS` | `true`                 |[m
+[32m+[m[32m| `DJANGO_SECURE_HSTS_PRELOAD`            | `true`                 |[m
+[32m+[m[32m| `DJANGO_SECURE_CONTENT_TYPE_NOSNIFF`    | `true`                 |[m
+[32m+[m[32m| `REDIS_URL`                             | `redis://redis:6379/0` |[m
+[32m+[m[32m| `DJANGO_EMAIL_BACKEND`                  | SMTP                   |[m
+[32m+[m[32m| `DJANGO_ACCOUNT_ALLOW_REGISTRATION`     | `true`                 |[m
+ [m
+ HTTPS cookies are always marked secure in production (`SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`). `SECURE_PROXY_SSL_HEADER` trusts `X-Forwarded-Proto`. `SECURE_HSTS_SECONDS` is 60.[m
+ [m
