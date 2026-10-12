@@ -21,7 +21,7 @@ pytestmark = pytest.mark.django_db
 
 def test_slug_is_unique():
     StoreFactory(slug="alpha")
-    with transaction.atomic(), pytest.raises(IntegrityError):
+    with pytest.raises(IntegrityError), transaction.atomic():
         StoreFactory(slug="alpha")
 
 
@@ -42,7 +42,7 @@ def test_normalized_domain_is_globally_unique():
     store = StoreFactory()
     other = StoreFactory()
     StoreDomainFactory(store=store, domain="tienda.com")
-    with transaction.atomic(), pytest.raises(IntegrityError):
+    with pytest.raises(IntegrityError), transaction.atomic():
         StoreDomain.objects.create(store=other, domain="TIENDA.com.")
 
 
@@ -65,7 +65,7 @@ def test_saving_a_primary_domain_clears_the_previous_one():
 
 def test_two_primary_domains_cannot_bypass_save():
     store = StoreFactory()
-    with transaction.atomic(), pytest.raises(IntegrityError):
+    with pytest.raises(IntegrityError), transaction.atomic():
         StoreDomain.objects.bulk_create(
             [
                 StoreDomain(
@@ -94,7 +94,7 @@ def test_membership_pair_is_unique():
     store = StoreFactory()
     user = UserFactory()
     StoreMembershipFactory(store=store, user=user)
-    with transaction.atomic(), pytest.raises(IntegrityError):
+    with pytest.raises(IntegrityError), transaction.atomic():
         StoreMembershipFactory(store=store, user=user)
 
 
