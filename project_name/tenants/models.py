@@ -36,7 +36,7 @@ class StoreQuerySet(models.QuerySet):
             message = "Cannot call delete() after .distinct(*fields)."
             raise TypeError(message)
         if self._fields is not None:
-            message = "Cannot call delete() after .values() or .values_list()."
+            message = "Cannot call delete() after .values() or .values_list()"
             raise TypeError(message)
 
         now = timezone.now()

@@ -1,8 +1,10 @@
 import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.db import router
 from django.db import transaction
 from django.db.models import QuerySet
+from django.db.utils import NotSupportedError
 
 from project_name.tenants.models import PRIMARY_DOMAIN_CONSTRAINT
 from project_name.tenants.models import UNIQUE_MEMBERSHIP_CONSTRAINT
@@ -175,6 +177,14 @@ def test_queryset_delete_rejects_slices_distinct_fields_and_values():
         Store.objects.distinct("slug").delete()
     with pytest.raises(TypeError):
         Store.objects.values("id").delete()
+    with pytest.raises(TypeError):
+        Store.objects.values_list("id").delete()
+
+
+def test_queryset_delete_rejects_combined_queries():
+    combined = Store.objects.all().union(Store.objects.all())
+    with pytest.raises(NotSupportedError, match="union"):
+        combined.delete()
 
 
 def test_plain_distinct_delete_soft_deletes_the_store():
@@ -215,7 +225,7 @@ def test_primary_domain_transaction_uses_the_write_alias(monkeypatch):
         is_primary=True,
     )
     second.save()
-    assert captured["using"] == "default"
+    assert captured["using"] == router.db_for_write(StoreDomain, instance=second)
     first.refresh_from_db()
     assert first.is_primary is False
     assert second.is_primary is True
