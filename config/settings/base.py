@@ -102,6 +102,7 @@ LOCAL_APPS = [
     "project_name.users",
     # Your stuff: custom apps go here
     "project_name.apps.portfolio",
+    "project_name.tenants",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
