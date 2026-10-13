@@ -11,6 +11,7 @@ Usa los nombres de Django: `models.py`, `views.py`, `admin.py`, `urls.py`, `form
 - `utils.py`: funciones puras y el valor de la petición actual. No deciden permisos.
 - `access.py`: quién puede ver o cambiar datos. Las vistas lo llaman; el ORM no lo aplica solo.
 - `middleware.py`: solo la clase de middleware.
+- `managers.py`: `TenantQuerySet` y `TenantManager`. El modelo abstracto `TenantAwareModel` vive en `models.py`.
 - `mixins.py`: respuesta HTTP de una vista (404 o login). La consulta de membresía está en `access.py`.
 - `context_processors.py`: valores que las plantillas leen en cada request.
 

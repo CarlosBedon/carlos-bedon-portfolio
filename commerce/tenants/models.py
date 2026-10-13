@@ -2,9 +2,12 @@ from django.conf import settings
 from django.db import models
 from django.db import router
 from django.db import transaction
+from django.db.models import Manager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from commerce.tenants.managers import TenantManager
+from commerce.tenants.managers import assign_active_store
 from commerce.tenants.utils import DOMAIN_MAX_LENGTH
 from commerce.tenants.utils import normalize_domain
 
@@ -235,3 +238,34 @@ class StoreMembership(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} @ {self.store}"
+
+
+class TenantAwareModel(models.Model):
+    """Abstract parent for a row that belongs to one store.
+
+    ``objects`` reads and writes only the store in the current request.
+    With no request store, that manager returns no rows and ``save()``
+    refuses to insert. ``all_objects`` skips the filter. Soft-deleting a
+    store does not remove these rows; a SQL delete of the store does,
+    because the foreign key cascades.
+    """
+
+    store = models.ForeignKey(
+        "tenants.Store",
+        on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s",
+        related_query_name="%(app_label)s_%(class)s",
+        verbose_name=_("store"),
+    )
+    objects = TenantManager()
+    all_objects = Manager()  # noqa: DJ012
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        assigned = assign_active_store(self)
+        update_fields = kwargs.get("update_fields")
+        if assigned and update_fields is not None:
+            kwargs["update_fields"] = {*update_fields, "store_id"}
+        return super().save(*args, **kwargs)
