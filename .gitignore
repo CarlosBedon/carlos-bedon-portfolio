@@ -269,7 +269,7 @@ tags
 dump.rdb
 
 ### Project template
-project_name/media/
+commerce/media/
 
 .pytest_cache/
 .ipython/

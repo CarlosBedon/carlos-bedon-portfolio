@@ -8,8 +8,8 @@ from pathlib import Path
 import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-# project_name/
-APPS_DIR = BASE_DIR / "project_name"
+# commerce/
+APPS_DIR = BASE_DIR / "commerce"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -99,9 +99,10 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "project_name.users",
+    "commerce.users",
     # Your stuff: custom apps go here
-    "project_name.apps.portfolio",
+    "commerce.apps.portfolio",
+    "commerce.tenants",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -109,7 +110,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "project_name.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "commerce.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -155,6 +156,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "commerce.tenants.middleware.TenantResolutionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -205,7 +207,8 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "project_name.users.context_processors.allauth_settings",
+                "commerce.users.context_processors.allauth_settings",
+                "commerce.tenants.context_processors.current_store",
             ],
         },
     },
@@ -330,13 +333,13 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 # https://docs.allauth.org/en/latest/account/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://docs.allauth.org/en/latest/account/configuration.html
-ACCOUNT_ADAPTER = "project_name.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "commerce.users.adapters.AccountAdapter"
 # https://docs.allauth.org/en/latest/account/forms.html
-ACCOUNT_FORMS = {"signup": "project_name.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "commerce.users.forms.UserSignupForm"}
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_ADAPTER = "project_name.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "commerce.users.adapters.SocialAccountAdapter"
 # https://docs.allauth.org/en/latest/socialaccount/configuration.html
-SOCIALACCOUNT_FORMS = {"signup": "project_name.users.forms.UserSocialSignupForm"}
+SOCIALACCOUNT_FORMS = {"signup": "commerce.users.forms.UserSocialSignupForm"}
 
 # django-rest-framework
 # -------------------------------------------------------------------------------
@@ -356,8 +359,8 @@ CORS_URLS_REGEX = r"^/api/.*$"
 # By Default swagger ui is available only to admin user(s). You can change permission classes to change that
 # See more configuration options at https://drf-spectacular.readthedocs.io/en/latest/settings.html#settings
 SPECTACULAR_SETTINGS = {
-    "TITLE": "project_name API",
-    "DESCRIPTION": "Documentation of API endpoints of project_name",
+    "TITLE": "commerce API",
+    "DESCRIPTION": "Documentation of API endpoints of commerce",
     "VERSION": "1.0.0",
     "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
     "SCHEMA_PATH_PREFIX": "/api/",
