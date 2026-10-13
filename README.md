@@ -1,8 +1,8 @@
-# project_name
+# commerce
 
 Django project based on Cookiecutter Django: `local` / `test` / `production` settings, Bootstrap 5 with Sass and Gulp, WhiteNoise, pytest, and uv. It can run on Render with Supabase Postgres and Storage.
 
-The Python package is `project_name`. There is no `dashboard` package. The navbar label is Dashboard. `/portfolio/` still shows the Welcome page.
+The Python package is `commerce`. There is no `dashboard` package. The navbar label is Dashboard. `/portfolio/` still shows the Welcome page.
 
 There is no `config.settings.staging` module. A staging host uses `config.settings.production` with its own database, secret, hosts, and bucket.
 

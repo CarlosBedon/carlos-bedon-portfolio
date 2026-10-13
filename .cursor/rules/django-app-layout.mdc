@@ -1,0 +1,23 @@
+---
+description: Layout of Django apps in this project
+globs: commerce/**/*.py
+alwaysApply: false
+---
+
+# Layout de cada app Django
+
+Usa los nombres de Django: `models.py`, `views.py`, `admin.py`, `urls.py`, `forms.py`, `apps.py`, `migrations/`, `tests/`.
+
+- `utils.py`: funciones puras y el valor de la petición actual. No deciden permisos.
+- `access.py`: quién puede ver o cambiar datos. Las vistas lo llaman; el ORM no lo aplica solo.
+- `middleware.py`: solo la clase de middleware.
+
+```python
+# utils.py
+def normalize_domain(value: str) -> str: ...
+
+# access.py
+def user_can_manage_store(user, store) -> bool: ...
+```
+
+No crees `domains.py`, `context.py` ni un `helpers.py` paralelo. No metas autorización dentro de `utils.py`.

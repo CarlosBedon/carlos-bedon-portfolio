@@ -12,7 +12,7 @@ services:
       - /app/.venv
       - ./docs:/docs:z
       - ./config:/app/config:z
-      - ./project_name:/app/project_name:z
+      - ./commerce:/app/commerce:z
     ports:
       - '9000:9000'
     command: /start-docs
