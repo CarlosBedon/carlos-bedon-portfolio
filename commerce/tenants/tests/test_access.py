@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 
+from commerce.tenants.access import active_membership
 from commerce.tenants.access import get_store_for_member
 from commerce.tenants.access import stores_for_member
 from commerce.tenants.access import user_can_manage_store
@@ -121,6 +122,21 @@ def test_superuser_with_admin_membership_can_manage_that_store():
         role=StoreMembership.Role.ADMIN,
     )
     assert user_can_manage_store(user, store) is True
+
+
+def test_active_membership_matches_the_role_and_ignores_superuser():
+    member = UserFactory()
+    store = StoreFactory()
+    membership = StoreMembershipFactory(
+        store=store,
+        user=member,
+        role=StoreMembership.Role.COLLABORATOR,
+    )
+    superuser = UserFactory(is_superuser=True, is_staff=True)
+
+    assert active_membership(member, store) == membership
+    assert active_membership(member, store, role=StoreMembership.Role.ADMIN) is None
+    assert active_membership(superuser, store) is None
 
 
 def test_anonymous_user_sees_no_stores():

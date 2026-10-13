@@ -36,6 +36,25 @@ def get_store_for_member(user, store_id: int) -> Store:
     return stores_for_member(user).get(pk=store_id)
 
 
+def active_membership(user, store: Store, *, role: str | None = None):
+    """Return this user's active membership for ``store``, or ``None``.
+
+    An anonymous user, an inactive membership, and a different role when
+    ``role`` is set all return ``None``. A superuser without a membership
+    also returns ``None``. This function does not decide whether a view
+    may let that superuser through.
+    """
+    if not getattr(user, "is_authenticated", False):
+        return None
+    filters = {"store": store, "user": user, "is_active": True}
+    if role is not None:
+        filters["role"] = role
+    try:
+        return StoreMembership.objects.get(**filters)
+    except StoreMembership.DoesNotExist:
+        return None
+
+
 def user_can_manage_store(user, store: Store) -> bool:
     """Return whether this member can manage this store.
 
