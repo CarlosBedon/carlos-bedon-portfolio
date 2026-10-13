@@ -208,6 +208,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "commerce.users.context_processors.allauth_settings",
+                "commerce.tenants.context_processors.current_store",
             ],
         },
     },
