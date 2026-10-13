@@ -28,7 +28,7 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = "project_name"
+project = "commerce"
 copyright = """2026, Carlos Bedon Cardena"""  # noqa: A001
 author = "Carlos Bedon Cardena"
 

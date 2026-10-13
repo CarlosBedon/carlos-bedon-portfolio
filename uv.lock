@@ -239,7 +239,7 @@ wheels = [
 ]
 
 [[package]]
-name = "project_name"
+name = "commerce"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

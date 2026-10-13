@@ -6,9 +6,9 @@ COPY ./package.json ./package-lock.json ${APP_HOME}
 RUN npm ci && npm cache clean --force
 COPY . ${APP_HOME}
 RUN npm run build \
-  && test -s project_name/static/css/project.min.css \
-  && test -f project_name/static/js/project.min.js \
-  && test -s project_name/static/js/vendors.min.js
+  && test -s commerce/static/css/project.min.css \
+  && test -f commerce/static/js/project.min.js \
+  && test -s commerce/static/js/vendors.min.js
 # define an alias for the specific python version used in this file.
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS python-build-stage
 
@@ -88,7 +88,7 @@ RUN chmod +x /start-flower
 # Copy the application from the builder
 COPY --from=python-build-stage --chown=django:django ${APP_HOME} ${APP_HOME}
 # explicitly create the media folder before changing ownership below
-RUN mkdir -p ${APP_HOME}/project_name/media
+RUN mkdir -p ${APP_HOME}/commerce/media
 
 # make django owner of the WORKDIR directory as well.
 RUN chown django:django ${APP_HOME}

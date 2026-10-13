@@ -1,6 +1,6 @@
 ---
 description: Layout of Django apps in this project
-globs: project_name/**/*.py
+globs: commerce/**/*.py
 alwaysApply: false
 ---
 

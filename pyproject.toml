@@ -1,5 +1,5 @@
 [project]
-name = "project-name"
+name = "commerce"
 version = "0.1.0"
 description = "Django template ready to deploy on Render with Supabase Postgres and Storage"
 readme = "README.md"
@@ -160,7 +160,7 @@ lint.isort.force-single-line = true
 profile = "black"
 line_length = 88
 force_single_line = true
-known_first_party = [ "config", "project_name" ]
+known_first_party = [ "commerce", "config" ]
 skip_glob = [ "*/migrations/*" ]
 
 # ==== pyproject-fmt ====
@@ -203,6 +203,6 @@ python_files = [
 
 [tool.coverage]
 # ==== Coverage ====
-run.include = [ "project_name/**" ]
+run.include = [ "commerce/**" ]
 run.omit = [ "*/migrations/*", "*/tests/*" ]
 run.plugins = [ "django_coverage_plugin" ]
