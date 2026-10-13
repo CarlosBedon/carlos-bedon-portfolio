@@ -1,33 +1,10 @@
 import pytest
-from django.apps import apps
-from django.db import connection
-from django.db import models
 
-from commerce.tenants.models import TenantAwareModel
 from commerce.tenants.tests.factories import StoreFactory
 from commerce.tenants.utils import reset_current_store
 from commerce.tenants.utils import set_current_store
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture(scope="session")
-def item_model(django_db_setup, django_db_blocker):
-    class Item(TenantAwareModel):
-        name = models.CharField(max_length=20)
-
-        class Meta:
-            app_label = "tenants"
-            db_table = "tenants_test_item"
-
-    with django_db_blocker.unblock(), connection.schema_editor() as schema_editor:
-        schema_editor.create_model(Item)
-    yield Item
-    with django_db_blocker.unblock(), connection.schema_editor() as schema_editor:
-        schema_editor.delete_model(Item)
-    app_models = apps.all_models["tenants"]
-    app_models.pop("item", None)
-    apps.clear_cache()
 
 
 def test_default_manager_is_empty_without_a_request_store(item_model):
