@@ -1,7 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from project_name.tenants.domains import normalize_domain
+from project_name.tenants.utils import normalize_domain
 
 
 @pytest.mark.parametrize(

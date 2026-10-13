@@ -5,8 +5,8 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from project_name.tenants.domains import DOMAIN_MAX_LENGTH
-from project_name.tenants.domains import normalize_domain
+from project_name.tenants.utils import DOMAIN_MAX_LENGTH
+from project_name.tenants.utils import normalize_domain
 
 PRIMARY_DOMAIN_CONSTRAINT = "tenants_storedomain_one_primary_per_store"
 UNIQUE_MEMBERSHIP_CONSTRAINT = "tenants_storemembership_unique_store_user"

@@ -1,3 +1,10 @@
+"""Who can see or manage a store.
+
+Views and APIs call these helpers themselves. Nothing in the ORM applies
+them automatically. String helpers and the current request store live in
+``utils.py``.
+"""
+
 from project_name.tenants.models import Store
 from project_name.tenants.models import StoreMembership
 
