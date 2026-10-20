@@ -5,8 +5,47 @@ them automatically. String helpers and the current request store live in
 ``utils.py``.
 """
 
+from enum import StrEnum
+
 from commerce.tenants.models import Store
 from commerce.tenants.models import StoreMembership
+
+
+class StoreArea(StrEnum):
+    """Part of a store that the merchant panel exposes."""
+
+    CATALOG = "catalog"
+    STOCK = "stock"
+    ORDERS = "orders"
+    PAYMENTS = "payments"
+
+
+class StoreAction(StrEnum):
+    VIEW = "view"
+    ADD = "add"
+    CHANGE = "change"
+    DELETE = "delete"
+
+
+_ALL_ACTIONS = frozenset(StoreAction)
+_EDIT_ACTIONS = frozenset({StoreAction.VIEW, StoreAction.ADD, StoreAction.CHANGE})
+_VIEW_CHANGE = frozenset({StoreAction.VIEW, StoreAction.CHANGE})
+
+# An area missing from a role means no access. Payments are only read in
+# the merchant panel; the payment provider writes them.
+ROLE_PERMISSIONS: dict[str, dict[StoreArea, frozenset[StoreAction]]] = {
+    StoreMembership.Role.ADMIN: {
+        StoreArea.CATALOG: _ALL_ACTIONS,
+        StoreArea.STOCK: _ALL_ACTIONS,
+        StoreArea.ORDERS: _VIEW_CHANGE,
+        StoreArea.PAYMENTS: frozenset({StoreAction.VIEW}),
+    },
+    StoreMembership.Role.COLLABORATOR: {
+        StoreArea.CATALOG: _EDIT_ACTIONS,
+        StoreArea.STOCK: _EDIT_ACTIONS,
+        StoreArea.ORDERS: _VIEW_CHANGE,
+    },
+}
 
 
 def stores_for_member(user):
@@ -53,6 +92,53 @@ def active_membership(user, store: Store, *, role: str | None = None):
         return StoreMembership.objects.get(**filters)
     except StoreMembership.DoesNotExist:
         return None
+
+
+def can_enter_store_admin(user, store: Store | None) -> bool:
+    """Return whether this user may open the merchant panel of ``store``.
+
+    The store must be active and not soft-deleted. Members need an active
+    membership in that store. A superuser without one enters in read-only
+    support mode; ``is_staff`` alone grants nothing.
+    """
+    if not _store_admin_user_ok(user, store):
+        return False
+    return user.is_superuser or active_membership(user, store) is not None
+
+
+def store_admin_allows(request, area: StoreArea, action: StoreAction) -> bool:
+    """Return whether the request user may do ``action`` on ``area``.
+
+    An active membership in ``request.store`` decides through
+    ``ROLE_PERMISSIONS``, even for a superuser. A superuser without a
+    membership may only view. The membership is read once per request.
+    """
+    user = getattr(request, "user", None)
+    store = getattr(request, "store", None)
+    if not _store_admin_user_ok(user, store):
+        return False
+    membership = _request_membership(request)
+    if membership is not None:
+        allowed = ROLE_PERMISSIONS.get(membership.role, {}).get(area, frozenset())
+        return action in allowed
+    return user.is_superuser and action == StoreAction.VIEW
+
+
+_NOT_LOADED = object()
+
+
+def _request_membership(request):
+    membership = getattr(request, "store_membership", _NOT_LOADED)
+    if membership is _NOT_LOADED:
+        membership = active_membership(request.user, request.store)
+        request.store_membership = membership
+    return membership
+
+
+def _store_admin_user_ok(user, store: Store | None) -> bool:
+    if store is None or not store.is_publishable:
+        return False
+    return bool(getattr(user, "is_authenticated", False) and user.is_active)
 
 
 def user_can_manage_store(user, store: Store) -> bool:
