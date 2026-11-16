@@ -1,1 +1,23 @@
 {% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+  {% translate "About" %}
+  {% if current_store %}
+    — {{ current_store.name }}
+  {% endif %}
+{% endblock title %}
+{% block content %}
+  <section class="store-about py-5">
+    {% if current_store %}
+      <h1 class="h2 mb-3">{{ current_store.name }}</h1>
+      <p class="lead text-secondary mb-0">
+        {% translate "This is the storefront for this shop. Product listings will appear here next." %}
+      </p>
+    {% else %}
+      <h1 class="h2 mb-3">{% translate "About" %}</h1>
+      <p class="lead text-secondary mb-0">{% translate "This host is not linked to a store yet." %}</p>
+    {% endif %}
+  </section>
+{% endblock content %}

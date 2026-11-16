@@ -26,6 +26,8 @@ def test_registered_domain_resolves_the_store(tenant_client, store_with_domain):
     assert response.status_code == HTTPStatus.OK
     assert response.context["current_store"] == store
     assert get_current_store() is None
+    assert store.name.encode() in response.content
+    assert b"Dashboard" not in response.content
 
 
 def test_unknown_domain_is_a_404(client, settings):

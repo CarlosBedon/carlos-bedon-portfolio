@@ -1,0 +1,119 @@
+:root {
+  --store-ink: #14231c;
+  --store-muted: #4d5c54;
+  --store-paper: #eef3ef;
+  --store-paper-deep: #d9e4db;
+  --store-accent: #1f6b4a;
+  --store-accent-dark: #155239;
+}
+
+.store-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgb(31 107 74 / 12%), transparent 55%),
+    linear-gradient(
+      165deg,
+      var(--store-paper) 0%,
+      #f7faf7 45%,
+      var(--store-paper-deep) 100%
+    );
+  color: var(--store-ink);
+}
+
+.store-nav {
+  background: rgb(247 250 247 / 92%);
+  border-bottom: 1px solid rgb(20 35 28 / 8%);
+  backdrop-filter: blur(8px);
+}
+
+.store-brand {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--store-ink) !important;
+}
+
+.store-nav .nav-link {
+  color: var(--store-muted);
+}
+
+.store-nav .nav-link:hover,
+.store-nav .nav-link:focus {
+  color: var(--store-ink);
+}
+
+.store-messages {
+  padding-top: 1rem;
+}
+
+.storefront-hero {
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 4.5rem);
+  padding: 3rem 0 4rem;
+}
+
+.storefront-hero__inner {
+  max-width: 40rem;
+}
+
+.storefront-hero__eyebrow {
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--store-accent);
+}
+
+.storefront-hero__brand {
+  margin-bottom: 1rem;
+  font-size: clamp(2.4rem, 6vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--store-ink);
+}
+
+.storefront-hero__lead {
+  margin-bottom: 1.75rem;
+  max-width: 32rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--store-muted);
+}
+
+.storefront-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-store-primary {
+  background: var(--store-accent);
+  border-color: var(--store-accent);
+  color: #fff;
+}
+
+.btn-store-primary:hover,
+.btn-store-primary:focus {
+  background: var(--store-accent-dark);
+  border-color: var(--store-accent-dark);
+  color: #fff;
+}
+
+.btn-store-secondary {
+  background: transparent;
+  border-color: rgb(20 35 28 / 22%);
+  color: var(--store-ink);
+}
+
+.btn-store-secondary:hover,
+.btn-store-secondary:focus {
+  background: rgb(20 35 28 / 5%);
+  border-color: rgb(20 35 28 / 35%);
+  color: var(--store-ink);
+}
+
+.store-about .lead {
+  max-width: 36rem;
+}

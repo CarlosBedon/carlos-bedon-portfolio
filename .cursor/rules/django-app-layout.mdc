@@ -14,6 +14,8 @@ Usa los nombres de Django: `models.py`, `views.py`, `admin.py`, `urls.py`, `form
 - `managers.py`: `TenantQuerySet` y `TenantManager`. El modelo abstracto `TenantAwareModel` vive en `models.py`.
 - `mixins.py`: respuesta HTTP de una vista (404 o login). La consulta de membresía está en `access.py`.
 - `context_processors.py`: valores que las plantillas leen en cada request.
+- `admin.py` de `tenants`: admin de plataforma (`admin.site`) y panel de comercio (`store_admin_site`, `StoreScopedAdmin`, `StoreScopedInlineMixin`). Los modelos comerciales se registran en `store_admin_site` con `StoreScopedAdmin` y un `store_area`.
+- `forms.py`: formularios de Django, incluido el login del panel de comercio.
 
 ```python
 # utils.py

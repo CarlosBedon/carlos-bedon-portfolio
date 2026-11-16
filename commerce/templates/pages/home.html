@@ -1,7 +1,34 @@
 {% extends "base.html" %}
 
+{% load i18n %}
+
 {% block title %}
-  Dashboard
+  {% if current_store %}
+    {{ current_store.name }}
+  {% else %}
+    {% translate "Store" %}
+  {% endif %}
 {% endblock title %}
-{% block content %}
-{% endblock content %}
+{% block bodyclass %}
+  storefront-home
+{% endblock bodyclass %}
+{% block main %}
+  <section class="storefront-hero">
+    <div class="container storefront-hero__inner">
+      {% if current_store %}
+        <p class="storefront-hero__eyebrow">{% translate "Online store" %}</p>
+        <h1 class="storefront-hero__brand">{{ current_store.name }}</h1>
+        <p class="storefront-hero__lead">{% translate "Shop products from this store. Catalog and checkout are next." %}</p>
+        <div class="storefront-hero__actions">
+          <a class="btn btn-store-primary" href="{% url 'about' %}">{% translate "About this store" %}</a>
+          {% if not request.user.is_authenticated %}
+            <a class="btn btn-store-secondary" href="{% url 'account_login' %}">{% translate "Sign In" %}</a>
+          {% endif %}
+        </div>
+      {% else %}
+        <h1 class="storefront-hero__brand">{% translate "Store" %}</h1>
+        <p class="storefront-hero__lead">{% translate "This host is not linked to a store yet." %}</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock main %}
