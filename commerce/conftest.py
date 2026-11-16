@@ -32,3 +32,28 @@ def testserver_store(db):
 def _register_testserver_store(request):
     if "client" in request.fixturenames or "admin_client" in request.fixturenames:
         request.getfixturevalue("testserver_store")
+
+
+@pytest.fixture
+def store_with_domain(db):
+    """Return an active store and the primary domain that points at it."""
+    store = StoreFactory()
+    domain = StoreDomainFactory(
+        store=store,
+        domain=f"{store.slug}.example.com",
+        is_primary=True,
+    )
+    return store, domain
+
+
+@pytest.fixture
+def tenant_client(client, settings, store_with_domain):
+    """Client that sends the store's primary host on every request.
+
+    ``ALLOWED_HOSTS`` includes that host so Django reaches
+    ``TenantResolutionMiddleware`` instead of rejecting the host first.
+    """
+    _store, domain = store_with_domain
+    settings.ALLOWED_HOSTS = [domain.domain, "testserver"]
+    client.defaults["HTTP_HOST"] = domain.domain
+    return client

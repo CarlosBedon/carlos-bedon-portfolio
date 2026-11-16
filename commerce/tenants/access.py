@@ -94,28 +94,29 @@ def active_membership(user, store: Store, *, role: str | None = None):
         return None
 
 
-def can_enter_store_admin(user, store: Store | None) -> bool:
+def can_enter_merchant(user, store: Store | None) -> bool:
     """Return whether this user may open the merchant panel of ``store``.
 
     The store must be active and not soft-deleted. Members need an active
     membership in that store. A superuser without one enters in read-only
     support mode; ``is_staff`` alone grants nothing.
     """
-    if not _store_admin_user_ok(user, store):
+    if not _merchant_user_ok(user, store):
         return False
     return user.is_superuser or active_membership(user, store) is not None
 
 
-def store_admin_allows(request, area: StoreArea, action: StoreAction) -> bool:
+def merchant_allows(request, area: StoreArea, action: StoreAction) -> bool:
     """Return whether the request user may do ``action`` on ``area``.
 
+    Merchant views call this for catalog, stock, orders, and payments.
     An active membership in ``request.store`` decides through
     ``ROLE_PERMISSIONS``, even for a superuser. A superuser without a
     membership may only view. The membership is read once per request.
     """
     user = getattr(request, "user", None)
     store = getattr(request, "store", None)
-    if not _store_admin_user_ok(user, store):
+    if not _merchant_user_ok(user, store):
         return False
     membership = _request_membership(request)
     if membership is not None:
@@ -135,7 +136,7 @@ def _request_membership(request):
     return membership
 
 
-def _store_admin_user_ok(user, store: Store | None) -> bool:
+def _merchant_user_ok(user, store: Store | None) -> bool:
     if store is None or not store.is_publishable:
         return False
     return bool(getattr(user, "is_authenticated", False) and user.is_active)

@@ -1,8 +1,14 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.test import RequestFactory
 
+from commerce.tenants.access import ROLE_PERMISSIONS
+from commerce.tenants.access import StoreAction
+from commerce.tenants.access import StoreArea
 from commerce.tenants.access import active_membership
+from commerce.tenants.access import can_enter_merchant
 from commerce.tenants.access import get_store_for_member
+from commerce.tenants.access import merchant_allows
 from commerce.tenants.access import stores_for_member
 from commerce.tenants.access import user_can_manage_store
 from commerce.tenants.models import Store
@@ -12,6 +18,13 @@ from commerce.tenants.tests.factories import StoreMembershipFactory
 from commerce.users.tests.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
+
+
+def _request(user, store):
+    request = RequestFactory().get("/")
+    request.user = user
+    request.store = store
+    return request
 
 
 def test_active_admin_can_see_and_manage_the_store():
@@ -146,3 +159,76 @@ def test_anonymous_user_sees_no_stores():
     assert user_can_manage_store(anonymous, store) is False
     with pytest.raises(Store.DoesNotExist):
         get_store_for_member(anonymous, store.pk)
+
+
+def test_role_permissions_match_the_agreed_matrix():
+    admin_role = ROLE_PERMISSIONS[StoreMembership.Role.ADMIN]
+    collaborator = ROLE_PERMISSIONS[StoreMembership.Role.COLLABORATOR]
+
+    assert StoreAction.DELETE in admin_role[StoreArea.CATALOG]
+    assert StoreAction.DELETE not in collaborator[StoreArea.CATALOG]
+    assert admin_role[StoreArea.PAYMENTS] == {StoreAction.VIEW}
+    assert StoreArea.PAYMENTS not in collaborator
+    assert StoreAction.ADD not in admin_role[StoreArea.ORDERS]
+
+
+def test_merchant_allows_follows_the_member_role():
+    store = StoreFactory()
+    collaborator = StoreMembershipFactory(
+        store=store,
+        role=StoreMembership.Role.COLLABORATOR,
+    ).user
+    request = _request(collaborator, store)
+
+    assert merchant_allows(request, StoreArea.CATALOG, StoreAction.CHANGE)
+    assert not merchant_allows(request, StoreArea.CATALOG, StoreAction.DELETE)
+    assert not merchant_allows(request, StoreArea.PAYMENTS, StoreAction.VIEW)
+
+
+def test_superuser_without_membership_may_only_view_in_merchant():
+    store = StoreFactory()
+    request = _request(UserFactory(is_superuser=True, is_staff=True), store)
+
+    assert can_enter_merchant(request.user, store)
+    assert merchant_allows(request, StoreArea.PAYMENTS, StoreAction.VIEW)
+    assert not merchant_allows(request, StoreArea.CATALOG, StoreAction.CHANGE)
+
+
+def test_superuser_with_membership_uses_the_member_role_in_merchant():
+    store = StoreFactory()
+    superuser = UserFactory(is_superuser=True, is_staff=True)
+    StoreMembershipFactory(
+        store=store,
+        user=superuser,
+        role=StoreMembership.Role.COLLABORATOR,
+    )
+    request = _request(superuser, store)
+
+    assert merchant_allows(request, StoreArea.CATALOG, StoreAction.CHANGE)
+    assert not merchant_allows(request, StoreArea.PAYMENTS, StoreAction.VIEW)
+
+
+@pytest.mark.parametrize(
+    "case",
+    ["staff", "inactive_membership", "other_store", "inactive_store", "no_store"],
+)
+def test_merchant_denies_users_without_access(case):
+    store = StoreFactory()
+    other = StoreFactory()
+    user = UserFactory(is_staff=True)
+    request_store = store
+    if case == "inactive_membership":
+        StoreMembershipFactory(store=store, user=user, is_active=False)
+    elif case == "other_store":
+        StoreMembershipFactory(store=other, user=user)
+    elif case == "inactive_store":
+        StoreMembershipFactory(store=store, user=user)
+        store.status = Store.Status.INACTIVE
+        store.save()
+    elif case == "no_store":
+        StoreMembershipFactory(store=store, user=user)
+        request_store = None
+    request = _request(user, request_store)
+
+    assert can_enter_merchant(user, request_store) is False
+    assert not merchant_allows(request, StoreArea.CATALOG, StoreAction.VIEW)

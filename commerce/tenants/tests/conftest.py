@@ -4,33 +4,6 @@ from django.db import connection
 from django.db import models
 
 from commerce.tenants.models import TenantAwareModel
-from commerce.tenants.tests.factories import StoreDomainFactory
-from commerce.tenants.tests.factories import StoreFactory
-
-
-@pytest.fixture
-def store_with_domain(db):
-    """Return an active store and the primary domain that points at it."""
-    store = StoreFactory()
-    domain = StoreDomainFactory(
-        store=store,
-        domain=f"{store.slug}.example.com",
-        is_primary=True,
-    )
-    return store, domain
-
-
-@pytest.fixture
-def tenant_client(client, settings, store_with_domain):
-    """Client that sends the store's primary host on every request.
-
-    ``ALLOWED_HOSTS`` includes that host so Django reaches
-    ``TenantResolutionMiddleware`` instead of rejecting the host first.
-    """
-    _store, domain = store_with_domain
-    settings.ALLOWED_HOSTS = [domain.domain, "testserver"]
-    client.defaults["HTTP_HOST"] = domain.domain
-    return client
 
 
 @pytest.fixture(scope="session")
